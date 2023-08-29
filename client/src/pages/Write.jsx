@@ -12,6 +12,7 @@ const Write = () => {
     const [title, setTitle] = useState(state?.title || "")
     const [file, setFile] = useState(null)
     const [cat, setCat] = useState(state?.cat || "")
+    const [imgUrl, setImgUrl] = useState(state?.img || "")
 
     const navigate = useNavigate()
 
@@ -28,24 +29,26 @@ const Write = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        let imgUrl = ""
-        if(file){
-            imgUrl = await upload()
+        let newUrl = imgUrl
+        if (file) {
+            newUrl = await upload()
+            setImgUrl(newUrl)
         }
         try {
             if (state) {
+                console.log(imgUrl)
                 await axios.put(`/posts/${state.id}`, {
                     title,
                     desc: value,
                     cat,
-                    img: imgUrl
+                    img: newUrl
                 })
             } else {
                 const postData = {
                     title,
                     desc: value,
                     cat,
-                    img: imgUrl,
+                    img: newUrl,
                     date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
                 }
                 await axios.post("/posts/", postData)
@@ -55,6 +58,8 @@ const Write = () => {
             console.log(err)
         }
     }
+
+
 
     return (
         <div className='add'>
@@ -68,12 +73,14 @@ const Write = () => {
                 <div className="item">
                     <h1>Publish</h1>
                     <span>
-                        <b>Status: </b> Draft
-                    </span>
-                    <span>
                         <b>Visibility: </b> Public
                     </span>
-                    <input style={{ display: "none" }} type="file" id="file" onChange={e => setFile(e.target.files[0])} />
+                    <span>Current image: {imgUrl ? imgUrl : "none"}</span>
+                    <input style={{ display: "none" }} type="file" id="file" onChange={e => {
+                        setFile(e.target.files[0])
+                        setImgUrl(e.target.files[0].name)
+                    }
+                    } />
                     <label className='file' htmlFor="file">Upload Image</label>
                     <div className="buttons">
                         <button onClick={handleSubmit}>{state ? "Update" : "Publish"}</button>
