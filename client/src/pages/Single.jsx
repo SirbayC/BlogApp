@@ -6,6 +6,9 @@ import Delete from "../img/delete.png"
 import axios from 'axios'
 import moment from 'moment'
 import { AuthContext } from '../context/authContext'
+import DefaultNoPostPic from "../img/defaultNoImgPost.jpg"
+import DOMPurify from "dompurify";
+
 
 const Single = () => {
     const [post, setPost] = useState({})
@@ -29,7 +32,7 @@ const Single = () => {
         fetchData()
     }, [postId])
 
-    const handleDelete = async ()=>{
+    const handleDelete = async () => {
         try {
             await axios.delete(`/posts/${postId}`)
             navigate("/")
@@ -41,24 +44,27 @@ const Single = () => {
     return (
         <div className='single'>
             <div className="content">
-                <img src={`../uploads/${post?.img}`} alt="" />
+                {post.img ? <img src={`../uploads/${post.img}`} alt="" /> : <img src={DefaultNoPostPic} alt="" />}
                 <div className="user">
                     {post.userImg && <img src={post.userImg} alt="" />}
                     <div className="info">
                         <span>{post.username}</span>
                         <p>Posted {moment(post.date).fromNow()}</p>
                     </div>
-                    {(currentUser.username === post.username) &&
+                    {currentUser && (currentUser.username === post.username) &&
                         <div className="edit">
-                            <Link to={`/write?edit=2`} state = {post}><img src={Edit} alt="" /></Link>
+                            <Link to={`/write`} state={post}><img src={Edit} alt="" /></Link>
                             <img onClick={handleDelete} src={Delete} alt="" />
                         </div>
-                        }
+                    }
                 </div>
                 <h1>{post.title}</h1>
-                {post.desc}
+                <p dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(post.desc),
+                    }}
+                ></p>
             </div>
-            <Menu cat={post.cat}/>
+            <Menu cat={post.cat} />
         </div>
     )
 }
