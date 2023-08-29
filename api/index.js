@@ -14,5 +14,5 @@ app.use("/api/users", userRoutes)
 
 
 app.listen(8800,()=>{
-    console.log("Connected!")
+    console.log("Api Running!")
 })

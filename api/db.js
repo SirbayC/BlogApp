@@ -6,3 +6,8 @@ export const db = mysql.createConnection({
     password:'123456789Minu',
     database:'blog'
 })
+
+db.connect(err => {
+    if(err) console.log(err)
+    else console.log("Connected to database")
+})
